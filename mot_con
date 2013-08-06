@@ -1,0 +1,81 @@
+//This code resides on the motor control Aruduino.
+//It will interface with a PHP web site on the Pi.
+
+//Define variables
+int DIRB = 13;//Direction bit motor B
+int DIRA = 12;//Direction bit motor A
+int PWMB = 11;//On-Off control motor B
+int PWMA = 3;//On-Off control motor A
+int BRAKEA = 9;//Brake motor A
+int BRAKEB = 8;//Brake motor b
+
+//These are inputs from the motor reading current for each
+const int motora = A0;
+const int motorb = A1;
+
+//Internal variables for saving data
+int motoraval = 0;
+int motorbval = 0;
+float motoracalc = 0.00;
+float motorbcalc = 0.00;
+int incomingByte;
+
+//Setup all pin mode and directions as well as serial
+void setup(){
+  Serial.begin(9600);//Baud must match that in PHP web site
+  pinMode(DIRB, OUTPUT);
+  pinMode(DIRA, OUTPUT);
+  pinMode(PWMB, OUTPUT);
+  pinMode(PWMA, OUTPUT);
+  pinMode(BRAKEA, OUTPUT);
+  pinMode(BRAKEB, OUTPUT);
+
+}
+
+void loop(){
+  if (Serial.available() > 0){
+    incomingByte = Serial.read();//If a serial message is present, read it
+
+ //compare what is read to if statements, do what is directed
+    if (incomingByte == '0'){
+      digitalWrite(DIRA, HIGH);
+      digitalWrite(DIRB, LOW);
+      digitalWrite(PWMA, HIGH);
+      digitalWrite(PWMB, HIGH);
+    }
+    if (incomingByte == '1'){
+      digitalWrite(DIRA, LOW);
+      digitalWrite(DIRB, HIGH);
+      digitalWrite(PWMA, HIGH);
+      digitalWrite(PWMB, HIGH);
+    }
+    if (incomingByte == '2'){
+      digitalWrite(DIRA, HIGH);
+      digitalWrite(DIRB, HIGH);
+      digitalWrite(PWMA, HIGH);
+      digitalWrite(PWMB, HIGH);
+      }
+    if (incomingByte == '3'){
+      digitalWrite(DIRA, LOW);
+      digitalWrite(DIRB, LOW);
+      digitalWrite(PWMA, HIGH);
+      digitalWrite(PWMB, HIGH);
+    }
+    if (incomingByte == '4'){
+      digitalWrite(PWMA, LOW);
+      digitalWrite(PWMB, LOW);
+    }
+//If its a 5 then read the current analog inputs
+//calculate proper current using scaling factor
+//Send back to web page
+    if (incomingByte == '5'){
+      motoraval = analogRead(motora);
+      motorbval = analogRead(motorb);
+      motoracalc = (motoraval*.009765625)/1.65;
+      motorbcalc = (motorbval*.009765625)/1.65;
+      Serial.print("Motor A = ");
+      Serial.print(motoracalc);
+      Serial.print(" Motor B = ");
+      Serial.print(motorbcalc);
+    }
+  }}
