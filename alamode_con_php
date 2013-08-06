@@ -1,0 +1,72 @@
+<?php
+
+
+/* Simple serial script for controlling alamode LED
+
+Utilizes the PHP Serial class by Rémy Sanchez <thenux@gmail.com>
+(Thanks you rule!!) to communicate with the Arduino Serial!
+
+*/
+
+
+    //Load the serial port class
+    include "php_serial.class.php";
+
+    //Initialize the class
+    $serial = new phpSerial();
+
+    //Specify the serial port to use
+    $serial->deviceSet("/dev/ttyAMA0"); //Set this to match alamode
+
+    //Set the serial port parameters. 
+    $serial->confBaudRate(9600); //Baud rate: 9600
+    $serial->confParity("none");  //Parity 
+    $serial->confCharacterLength(8); //Character length 
+    $serial->confStopBits(1);  //Stop bits 
+
+    //Now we "open" the serial port so we can write to it
+    $serial->deviceOpen();
+
+if (isset($_GET['action'])){
+ 
+    if ($_GET['action'] == "ledon") {
+        
+        $serial->sendMessage("0");
+
+    } else if ($_GET['action'] == "ledoff") {
+        
+        $serial->sendMessage("1");
+    }
+
+        if ($_GET['action'] == "flashled") {
+        
+        $serial->sendMessage("2");
+
+    } else if ($_GET['action'] == "disconnect") {
+
+    //We're done, so close the serial port again
+    $serial->deviceClose();
+}
+}
+
+
+?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Alamode Control</title>
+</head>
+<body>
+
+<h1>Alamode Control</h1>
+<p><a href="<?=$_SERVER['PHP_SELF'] . "?action=ledon" ?>">
+Click here to turn the LED on.</a></p>
+<p><a href="<?=$_SERVER['PHP_SELF'] . "?action=ledoff" ?>">
+Click here to turn the LED off.</a></p>
+<p><a href="<?=$_SERVER['PHP_SELF'] . "?action=flashled" ?>">
+Click here to FLASH LED.</a></p>
+<p><a href="<?=$_SERVER['PHP_SELF'] . "?action=disconnect" ?>">
+Click here to disconnect serial.</a></p>
+</body>
+</html>
