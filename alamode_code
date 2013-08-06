@@ -1,0 +1,39 @@
+//This sketch resides on the alamode
+//It allows PHP control of onboard LED
+//code can be used, with some wiring, to control
+//Eye LEDs on the robot
+
+//Define variables
+int ledPin = 13;
+int incomingByte;
+
+//Define pin mode and direction as well as serial
+void setup(){
+  Serial.begin(9600);//Must match baud rate on PHP web site
+  pinMode(ledPin, OUTPUT);
+}
+
+void loop(){
+  if (Serial.available() > 0){
+    incomingByte = Serial.read();//If there is serial message present, read it
+
+//compare what is read by if statements
+//control LED as directed
+    if (incomingByte == '0'){
+      digitalWrite(ledPin, HIGH);
+    }
+    if (incomingByte == '1'){
+      digitalWrite(ledPin, LOW);
+    }
+
+//This if statement flashes the LED 4 times.
+    if (incomingByte == '2'){
+      for (int i = 0; i < 4; i++){
+        digitalWrite(ledPin, HIGH);
+        delay(500);
+        digitalWrite(ledPin, LOW);
+        delay(500);
+      }
+    }
+
+  }}
