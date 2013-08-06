@@ -1,0 +1,148 @@
+Parts list:
+1 Raspberry Pi (with SD card)
+1 Alamode
+1 Arduino Uno
+1 Motor Shield
+2 BEC power converters (from hobby king) one set to 5V, one set to 6V.
+1 3.5" (or other) TFT screen with RCA inputs
+1 USB hub
+1 Wireless keyboard
+1 Wireless 802.11 dongle
+needed wires and USB cables
+
+Optional: amplified speaker
+
+Connect a keyboard and mouse to the Pi for the first few steps.
+
+When first powering up Pi, the config program will run.  You want to make sure and:
+--Expand memory space on SD card (choice 1)
+--Enable SSH
+--Enable booting into GUI (I run most of my commands from command line, but for anything of interest do display on the screen you need the GUI)
+--Make sure time/date settings are correct and Pi is using internet to update both
+
+If you are using a wireless USB dongle, attach now and reboot.
+
+Pi will load into GUI.  Here is where you make sure you are connected to the internet.  Either directly to the ethernet cable or by wireless.  If using wireless, use the wireless utility that is loaded on the OS.  At this point, when Pi is connected to internet, I removed the keyboard and mouse from the Pi and ran "headless" using SSH then remote desktop.
+
+SSH into the Pi from a terminal program such as Terminal (Mac) or Putty (Win)
+
+Open the command line terminal. (all commands to type will be preceded with >, don't type > just type whats after it)
+
+ssh pi@xxx.xxx.x.x (replace with the ip of the Pi)
+password: raspberry (unless you changed it)
+
+Make sure Pi is up-to-date:
+
+> sudo apt-get update
+
+The following steps were learned here: (http://www.aplaceforallmystuff.com/2013/03/10/mmmpi-installing-a-web-server-on-raspberry-pi/)
+
+Install Apache web server:
+
+> sudo apt-get install apache2 php5 libapache2-mod-php5
+
+Install MySQL
+
+> sudo apt-get install mysql-server mysql-client php5-mysql
+
+Restart Apache
+
+> sudo service apache2 restart
+
+You can now create files in the /var/www directory for web sites.  (index.html is a good start, though the robot uses .php files for all control stuff)
+
+Next I want to set up remote desk top ability, I learned this from here: (http://www.raspberrypiblog.com/2012/10/how-to-setup-remote-desktop-from.html)
+
+> sudo apt-get install xrdp
+
+Restart Pi (> sudo reboot) you will lose SSH connection and have to reconnect.
+
+Once rebooted, I went back into SSH to continue installing items.  You can also remote desktop using whatever remote desktop software your system has. (Win 7 is Remote Desktop Connection).  Use the ip of the Pi, the username and password are those default (pi, raspberry) or whatever you changed them to.
+
+Next we want to make sure PHP can use serial class for communication.(GREAT help from here: (http://www.fritz-hut.com/php-serial-class/)
+
+In fact, just follow that web sites instructions for best success.  This really helped me out a great deal, thanks Fritz-Hut!
+
+Getting Arduino going on Pi
+
+> sudo apt-get install arduino
+
+Get the Alamode stuff up and working (great help here: http://wyolum.com/projects/alamode/alamode-getting-started/) Wyolum also has a full pdf of user guide here: https://docs.google.com/document/d/1HBvd3KNmcs632ZgO6t_u37B-qwV6P9o9FQe62lGkumM/edit?pli=1.  I didn't do any of the HW mods, just the software stuff
+
+> wget http://www.wyolum.com/downloads/alamode-setup.tar.gz
+> tar -xvzf alamode-setup.tar.gz
+> cd alamode-setup
+> sudo ./setup
+
+Reboot the Pi
+
+Now you can connect to the motor controller Arduino via the USB connection (serial).  This page is excellent for getting you started: http://blog.oscarliang.net/connect-raspberry-pi-and-arduino-usb-cable/
+
+This page has instructions if you want to talk to the arduino via python: http://www.doctormonk.com/2012/04/raspberry-pi-and-arduino.html
+
+The Wyolum document linked earlier has all the instructions for connecting to the Alamode.  Its very similar to connecting to the Uno on the USB link.  The serial name is different (ttyXXXX).
+
+I got help for this next section from:
+http://pastebin.com/tHRMmPuJ
+http://www.html.net/tutorials/php/lesson3.php
+
+To start controlling things from a web page you will want to create a php file in /var/www.  I do this by:
+> cd /var/www
+> sudo nano controlmotors.php (or whatever you want to name it)
+
+In nano you can put the following code:
+
+ RYAN…INSERT PHP AND ARDUINO CODE HERE FROM ACTUAL ROBOT!!!!!
+
+Extra stuff to do:
+
+Since you might have looked at how to talk to the arduino/alamode via python script, you can use cron to schedule scripts and start things at certain times.
+
+http://www.scrounge.org/linux/cron.html
+http://www.raspberrypi-spy.co.uk/2013/07/running-a-python-script-at-boot-using-cron/
+
+Perhaps use it to start a certain program at a certain time, or even be an alarm clock on the robot.
+
+Putting Pandora on Pi:
+(Help from: http://devicecontext.blogspot.com/2012/12/pandora-on-raspberry-pi.html)
+
+> sudo apt-get install pianobar
+
+Make sure and do the config file changes the web site suggests to get your username and login information correct.  At a minimum you need this in the config file:
+
+user = your@user.name
+password = password
+tls_fingerprint = B0A1EB460B1B6F33A1B6CB500C6523CB2E6EC946
+
+The tls_fingerprint will change from time to time.  The site suggests how to find a new one.  I searched forums until I found the current, which is stated to be good until 2015.
+
+The web page listed above has you using a USB speaker, I just used the auto out jack.  There are some things you need to do in order to make that work right: (NOTE: this is done already on the newest Wheezy distro.  You can check to make sure by looking at the /etc/modules file to see if snd_bcm2835 is listed there.)
+
+> sudo apt-get install alsa-utils
+> sudo modprobe snd_bcm2835
+> sudo mixer cset numid=3 1 (turns on auto out jack)
+> sudo nano /etc/modules
+
+--in this file make sure to add this after the last line:
+
+snd_bcm2835
+
+This will ensure that the snd_bcm2835 is initialized on boot.
+
+Turn volume up:
+
+> sudo amixer cset numid=1 -- 100%
+
+While some apps do control volume, I like to make sure its up all the way to start.
+
+For help with Bash, this is a good site:
+
+http://www.tldp.org/LDP/abs/html/
+
+
+
+
+
+
+
+
